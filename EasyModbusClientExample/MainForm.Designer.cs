@@ -94,6 +94,7 @@ namespace EasyModbusClientExample
             this.btnPrepareCoils = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.textBoxReadResult = new System.Windows.Forms.TextBox();
+            this.checkBoxFloatOffset = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -569,11 +570,24 @@ namespace EasyModbusClientExample
             this.textBoxReadResult.Size = new System.Drawing.Size(339, 160);
             this.textBoxReadResult.TabIndex = 21;
             // 
+            // checkBoxFloatOffset
+            // 
+            this.checkBoxFloatOffset.AutoSize = true;
+            this.checkBoxFloatOffset.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.checkBoxFloatOffset.Location = new System.Drawing.Point(566, 124);
+            this.checkBoxFloatOffset.Name = "checkBoxFloatOffset";
+            this.checkBoxFloatOffset.Size = new System.Drawing.Size(78, 17);
+            this.checkBoxFloatOffset.TabIndex = 42;
+            this.checkBoxFloatOffset.Text = "Float offset";
+            this.checkBoxFloatOffset.UseVisualStyleBackColor = true;
+            this.checkBoxFloatOffset.CheckedChanged += new System.EventHandler(this.checkBoxFloatOffset_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(669, 702);
+            this.Controls.Add(this.checkBoxFloatOffset);
             this.Controls.Add(this.textBoxReadResult);
             this.Controls.Add(this.txtConnectedStatus);
             this.Controls.Add(this.txtBaudrate);
@@ -661,5 +675,6 @@ namespace EasyModbusClientExample
         private System.Windows.Forms.Label lblBaudrate;
         private System.Windows.Forms.TextBox txtConnectedStatus;
         private System.Windows.Forms.TextBox textBoxReadResult;
+        private System.Windows.Forms.CheckBox checkBoxFloatOffset;
     }
 }

@@ -37,7 +37,11 @@ namespace EasyModbusClientExample
 	public partial class MainForm : Form
 	{
 		private EasyModbus.ModbusClient modbusClient;
-		public MainForm()
+
+        private int _startingAddress;
+        private int[] _serverResponse;
+
+        public MainForm()
 		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -148,35 +152,9 @@ namespace EasyModbusClientExample
                     buttonConnect_Click(null, null);
                 }
 
-                int startingAddress = int.Parse(txtStartingAddressInput.Text);
-                int[] serverResponse = modbusClient.ReadHoldingRegisters(startingAddress - 1, int.Parse(txtNumberOfValuesInput.Text));
-
-                var text = new StringBuilder("Addr\tHEX\tint16\tuint16\tfloat" + Environment.NewLine);
-                text.Append(string.Join(Environment.NewLine,
-                    Enumerable.Range(0, serverResponse.Length).Select((index) =>
-                    {
-                        var r = serverResponse[index];
-                        var bytes = BitConverter.GetBytes(r);
-                        var hex = $"0x{bytes[1].ToString("X2")}{bytes[0].ToString("X2")}";
-                        var int16 = BitConverter.ToInt16(bytes, 0);
-                        var uint16 = BitConverter.ToUInt16(bytes, 0);
-                        var single = string.Empty;
-
-                        if (((startingAddress + index) % 2 == 1) && (index + 1 < serverResponse.Length))
-                        {
-                            var nextBytes = BitConverter.GetBytes(serverResponse[index + 1]);
-                            var data = new byte[4];
-                            data[0] = nextBytes[0];
-                            data[1] = nextBytes[1];
-                            data[2] = bytes[0];
-                            data[3] = bytes[1];
-                            single = BitConverter.ToSingle(data, 0).ToString();
-                        }
-
-                        return $"{startingAddress + index}\t{hex}\t{int16}\t{uint16}\t{single}";
-                    })
-                ));
-                textBoxReadResult.Text = text.ToString();
+                _startingAddress = int.Parse(txtStartingAddressInput.Text);
+                _serverResponse = modbusClient.ReadHoldingRegisters(_startingAddress - 1, int.Parse(txtNumberOfValuesInput.Text));
+                FillReadResultText();
             }
             catch (Exception exc)
             {
@@ -193,35 +171,9 @@ namespace EasyModbusClientExample
                     buttonConnect_Click(null, null);
                 }
 
-                int startingAddress = int.Parse(txtStartingAddressInput.Text);
-                int[] serverResponse = modbusClient.ReadInputRegisters(startingAddress - 1, int.Parse(txtNumberOfValuesInput.Text));
-
-                var text = new StringBuilder("Addr\tHEX\tint16\tuint16\tfloat" + Environment.NewLine);
-                text.Append(string.Join(Environment.NewLine,
-                    Enumerable.Range(0, serverResponse.Length).Select((index) =>
-                    {
-                        var r = serverResponse[index];
-                        var bytes = BitConverter.GetBytes(r);
-                        var hex = $"0x{bytes[1].ToString("X2")}{bytes[0].ToString("X2")}";
-                        var int16 = BitConverter.ToInt16(bytes, 0);
-                        var uint16 = BitConverter.ToUInt16(bytes, 0);
-                        var single = string.Empty;
-
-                        if (((startingAddress + index) % 2 == 1) && (index + 1 < serverResponse.Length))
-                        {
-                            var nextBytes = BitConverter.GetBytes(serverResponse[index + 1]);
-                            var data = new byte[4];
-                            data[0] = nextBytes[0];
-                            data[1] = nextBytes[1];
-                            data[2] = bytes[0];
-                            data[3] = bytes[1];
-                            single = BitConverter.ToSingle(data, 0).ToString();
-                        }
-
-                        return $"{startingAddress + index}\t{hex}\t{int16}\t{uint16}\t{single}";
-                    })
-                ));
-                textBoxReadResult.Text = text.ToString();
+                _startingAddress = int.Parse(txtStartingAddressInput.Text);
+                _serverResponse = modbusClient.ReadInputRegisters(_startingAddress - 1, int.Parse(txtNumberOfValuesInput.Text));
+                FillReadResultText();
             }
             catch (Exception exc)
             {
@@ -532,6 +484,41 @@ namespace EasyModbusClientExample
             modbusClient.Baudrate = int.Parse(txtBaudrate.Text);
 
           
+        }
+
+        private void checkBoxFloatOffset_CheckedChanged(object sender, EventArgs e)
+        {
+            FillReadResultText();
+        }
+
+        private void FillReadResultText()
+        {
+            var text = new StringBuilder("Addr\tHEX\tint16\tuint16\tfloat" + Environment.NewLine);
+            text.Append(string.Join(Environment.NewLine,
+                Enumerable.Range(0, _serverResponse.Length).Select((index) =>
+                {
+                    var r = _serverResponse[index];
+                    var bytes = BitConverter.GetBytes(r);
+                    var hex = $"0x{bytes[1].ToString("X2")}{bytes[0].ToString("X2")}";
+                    var int16 = BitConverter.ToInt16(bytes, 0);
+                    var uint16 = BitConverter.ToUInt16(bytes, 0);
+                    var single = string.Empty;
+
+                    if (((_startingAddress + index) % 2 == (checkBoxFloatOffset.Checked ? 0 : 1)) && (index + 1 < _serverResponse.Length))
+                    {
+                        var nextBytes = BitConverter.GetBytes(_serverResponse[index + 1]);
+                        var data = new byte[4];
+                        data[0] = nextBytes[0];
+                        data[1] = nextBytes[1];
+                        data[2] = bytes[0];
+                        data[3] = bytes[1];
+                        single = BitConverter.ToSingle(data, 0).ToString();
+                    }
+
+                    return $"{_startingAddress + index}\t{hex}\t{int16}\t{uint16}\t{single}";
+                })
+            ));
+            textBoxReadResult.Text = text.ToString();
         }
     }
 }
